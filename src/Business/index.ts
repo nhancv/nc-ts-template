@@ -48,7 +48,8 @@ export default class Business extends RilModule implements GatewayHook {
     await emailNotifier.start();
     // @nhancv 11/27/19: Run cron job
     // @nhancv 12/20/19: For premium job queue
-    await new BullMQJob().execute();
+    const bullMQJob = BullMQJob.instance;
+    await bullMQJob.execute();
     // @nhancv 12/20/19: For normal cron job
     const cronJob = new CronJob();
     cronJob.setBot(bot);

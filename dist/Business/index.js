@@ -90,7 +90,7 @@ var Business = /** @class */ (function (_super) {
     }
     Business.prototype.start = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var bot, emailNotifier, cronJob;
+            var bot, emailNotifier, bullMQJob, cronJob;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0: 
@@ -116,12 +116,9 @@ var Business = /** @class */ (function (_super) {
                         return [4 /*yield*/, emailNotifier.start()];
                     case 5:
                         _a.sent();
-                        // @nhancv 11/27/19: Run cron job
-                        // @nhancv 12/20/19: For premium job queue
-                        return [4 /*yield*/, new BullMQJob_1.default().execute()];
+                        bullMQJob = BullMQJob_1.default.instance;
+                        return [4 /*yield*/, bullMQJob.execute()];
                     case 6:
-                        // @nhancv 11/27/19: Run cron job
-                        // @nhancv 12/20/19: For premium job queue
                         _a.sent();
                         cronJob = new CronJob_1.default();
                         cronJob.setBot(bot);
