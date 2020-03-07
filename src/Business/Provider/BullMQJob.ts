@@ -34,11 +34,14 @@ import Log from "../../Base/Log";
 
 export default class BullMQJob {
 
+  private prefixQueueId = 'TSTEMPLATE_ArN3LzCs';
+
   async execute() {
     // Example cron job
-    new QueueScheduler('cronJob');
-    const cronQueue = new Queue('cronJob');
-    new Worker('cronJob', async (job: Job) => {
+    const repeatQueueId = `${this.prefixQueueId}_cronJob`;
+    new QueueScheduler(repeatQueueId);
+    const cronQueue = new Queue(repeatQueueId);
+    new Worker(repeatQueueId, async (job: Job) => {
       Log.info(`CronQueue: ${job.name}: ${JSON.stringify(job.data)}`);
     }).on('completed', (job: Job) => {
       Log.info(`CronQueue job:${job.id} has completed!`);
@@ -53,7 +56,8 @@ export default class BullMQJob {
 
 
     // Create new queue and push some jobs
-    const myQueue = new Queue('fistQueue');
+    const normalQueueId = `${this.prefixQueueId}_fistQueue`;
+    const myQueue = new Queue(normalQueueId);
 
     async function addJobs() {
       await myQueue.add('myJobName1', {foo: 'bar'});
@@ -61,7 +65,7 @@ export default class BullMQJob {
     }
 
     // Tracking specific queue internally
-    const worker = new Worker('fistQueue', async (job: Job) => {
+    const worker = new Worker(normalQueueId, async (job: Job) => {
       // Will print { foo: 'bar'} for the first job
       // and { qux: 'baz' } for the second.
       Log.info(`${job.name}: ${JSON.stringify(job.data)}`);
@@ -74,7 +78,7 @@ export default class BullMQJob {
     });
 
     // Tracking queue events globally
-    const queueEvents = new QueueEvents('fistQueue');
+    const queueEvents = new QueueEvents(normalQueueId);
     queueEvents.on('completed', (event) => {
       Log.info(`Event job:${event.jobId} has completed!`);
     });

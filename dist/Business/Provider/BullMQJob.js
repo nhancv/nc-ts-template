@@ -72,6 +72,7 @@ var bullmq_1 = require("bullmq");
 var Log_1 = __importDefault(require("../../Base/Log"));
 var BullMQJob = /** @class */ (function () {
     function BullMQJob() {
+        this.prefixQueueId = 'TSTEMPLATE_ArN3LzCs';
     }
     BullMQJob.prototype.execute = function () {
         return __awaiter(this, void 0, void 0, function () {
@@ -90,15 +91,15 @@ var BullMQJob = /** @class */ (function () {
                     });
                 });
             }
-            var cronQueue, myQueue, worker, queueEvents;
+            var repeatQueueId, cronQueue, normalQueueId, myQueue, worker, queueEvents;
             var _this = this;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        // Example cron job
-                        new bullmq_1.QueueScheduler('cronJob');
-                        cronQueue = new bullmq_1.Queue('cronJob');
-                        new bullmq_1.Worker('cronJob', function (job) { return __awaiter(_this, void 0, void 0, function () {
+                        repeatQueueId = this.prefixQueueId + "_cronJob";
+                        new bullmq_1.QueueScheduler(repeatQueueId);
+                        cronQueue = new bullmq_1.Queue(repeatQueueId);
+                        new bullmq_1.Worker(repeatQueueId, function (job) { return __awaiter(_this, void 0, void 0, function () {
                             return __generator(this, function (_a) {
                                 Log_1.default.info("CronQueue: " + job.name + ": " + JSON.stringify(job.data));
                                 return [2 /*return*/];
@@ -115,8 +116,9 @@ var BullMQJob = /** @class */ (function () {
                     case 1:
                         // Repeat job every minute.
                         _a.sent();
-                        myQueue = new bullmq_1.Queue('fistQueue');
-                        worker = new bullmq_1.Worker('fistQueue', function (job) { return __awaiter(_this, void 0, void 0, function () {
+                        normalQueueId = this.prefixQueueId + "_fistQueue";
+                        myQueue = new bullmq_1.Queue(normalQueueId);
+                        worker = new bullmq_1.Worker(normalQueueId, function (job) { return __awaiter(_this, void 0, void 0, function () {
                             return __generator(this, function (_a) {
                                 // Will print { foo: 'bar'} for the first job
                                 // and { qux: 'baz' } for the second.
@@ -130,7 +132,7 @@ var BullMQJob = /** @class */ (function () {
                         worker.on('failed', function (job, err) {
                             Log_1.default.info("Worker job:" + job.id + " has failed with " + err.message);
                         });
-                        queueEvents = new bullmq_1.QueueEvents('fistQueue');
+                        queueEvents = new bullmq_1.QueueEvents(normalQueueId);
                         queueEvents.on('completed', function (event) {
                             Log_1.default.info("Event job:" + event.jobId + " has completed!");
                         });
