@@ -142,8 +142,10 @@ var App = /** @class */ (function (_super) {
             case 1:
                 _a.sent();
                 Log_1.default.info('Initialized.');
-                return [4 /*yield*/, app.startBusiness()];
+                // await app.startBusiness();
+                return [4 /*yield*/, app.startGateway()];
             case 2:
+                // await app.startBusiness();
                 _a.sent();
                 return [3 /*break*/, 4];
             case 3:

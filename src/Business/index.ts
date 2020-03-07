@@ -35,24 +35,24 @@ import GatewayHook from "../Gateway/GatewayHook";
 export default class Business extends RilModule implements GatewayHook {
   async start(): Promise<any> {
     // @nhancv 9/16/19: Connect db
-    // await MongoProvider.instance.connect();
-    // // @nhancv 9/16/19: Check migrate
-    // await new MongoMigrate().migrate();
-    // // @nhancv 11/22/19: Start bot
-    // const bot = new TemplateBot();
-    // await bot.create();
-    // await bot.start();
-    // // @nhancv 11/23/19: Start email listener
-    // const emailNotifier = new EmailNotifier();
-    // emailNotifier.setBot(bot);
-    // await emailNotifier.start();
+    await MongoProvider.instance.connect();
+    // @nhancv 9/16/19: Check migrate
+    await new MongoMigrate().migrate();
+    // @nhancv 11/22/19: Start bot
+    const bot = new TemplateBot();
+    await bot.create();
+    await bot.start();
+    // @nhancv 11/23/19: Start email listener
+    const emailNotifier = new EmailNotifier();
+    emailNotifier.setBot(bot);
+    await emailNotifier.start();
     // @nhancv 11/27/19: Run cron job
     // @nhancv 12/20/19: For premium job queue
     await new BullMQJob().execute();
     // @nhancv 12/20/19: For normal cron job
-    // const cronJob = new CronJob();
-    // cronJob.setBot(bot);
-    // await cronJob.execute();
+    const cronJob = new CronJob();
+    cronJob.setBot(bot);
+    await cronJob.execute();
 
   }
 

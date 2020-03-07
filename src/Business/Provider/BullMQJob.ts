@@ -34,27 +34,35 @@ import Log from "../../Base/Log";
 
 export default class BullMQJob {
 
+  private static _instance;
+  public static get instance(): BullMQJob {
+    return this._instance || (this._instance = new this());
+  }
+
   private prefixQueueId = 'TSTEMPLATE_ArN3LzCs';
+
+  private repeatQueue?: Queue;
+  private normalQueue?: Queue;
 
   async execute() {
     // Example cron job
     const repeatQueueId = `${this.prefixQueueId}_cronJob`;
     new QueueScheduler(repeatQueueId);
-    const cronQueue = new Queue(repeatQueueId);
+    this.repeatQueue = new Queue(repeatQueueId);
     // Clear all repeat jobs
-    await cronQueue.clean(0, 5000, 'active');
-    await cronQueue.clean(0, 5000, 'wait');
-    await cronQueue.clean(0, 5000, 'paused');
-    await cronQueue.clean(0, 5000, 'delayed');
-    await cronQueue.clean(0, 5000, 'failed');
-    await cronQueue.clean(0, 5000, 'completed');
+    await this.repeatQueue.clean(0, 5000, 'active');
+    await this.repeatQueue.clean(0, 5000, 'wait');
+    await this.repeatQueue.clean(0, 5000, 'paused');
+    await this.repeatQueue.clean(0, 5000, 'delayed');
+    await this.repeatQueue.clean(0, 5000, 'failed');
+    await this.repeatQueue.clean(0, 5000, 'completed');
     new Worker(repeatQueueId, async (job: Job) => {
       Log.info(`CronQueue: ${job.name}: ${JSON.stringify(job.data)}`);
     }).on('completed', (job: Job) => {
       Log.info(`CronQueue job:${job.id} has completed!`);
     });
     // Repeat job every minute.
-    await cronQueue.add('every_min', {color: 'yellow'},
+    await this.repeatQueue.add('every_min', {color: 'yellow'},
       {
         repeat: {
           cron: '* * * * *'
@@ -63,19 +71,8 @@ export default class BullMQJob {
 
 
     // Create new queue and push some jobs
-    const normalQueueId = `${this.prefixQueueId}_fistQueue`;
-    const myQueue = new Queue(normalQueueId);
-
-    async function addJobs() {
-      const jobOption = {
-        attempts: 3,
-        backoff: 3,
-        timeout: 60000,
-        removeOnComplete: true
-      };
-      await myQueue.add('myJobName1', {foo: 'bar'}, jobOption);
-      await myQueue.add('myJobName2', {qux: 'baz'}, jobOption);
-    }
+    const normalQueueId = `${this.prefixQueueId}_normalQueue`;
+    this.normalQueue = new Queue(normalQueueId);
 
     // Tracking specific queue internally
     const worker = new Worker(normalQueueId, async (job: Job) => {
@@ -100,8 +97,21 @@ export default class BullMQJob {
     });
 
     // Test
-    await addJobs();
+    await this.addJobs();
 
+  }
+
+  addJobs = async () => {
+    if(this.normalQueue) {
+      const jobOption = {
+        attempts: 3,
+        backoff: 3,
+        timeout: 60000,
+        removeOnComplete: true
+      };
+      await this.normalQueue.add('myJobName1', {foo: 'bar'}, jobOption);
+      await this.normalQueue.add('myJobName2', {qux: 'baz'}, jobOption);
+    }
   }
 }
 

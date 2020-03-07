@@ -72,59 +72,67 @@ var bullmq_1 = require("bullmq");
 var Log_1 = __importDefault(require("../../Base/Log"));
 var BullMQJob = /** @class */ (function () {
     function BullMQJob() {
+        var _this = this;
         this.prefixQueueId = 'TSTEMPLATE_ArN3LzCs';
+        this.addJobs = function () { return __awaiter(_this, void 0, void 0, function () {
+            var jobOption;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        if (!this.normalQueue) return [3 /*break*/, 3];
+                        jobOption = {
+                            attempts: 3,
+                            backoff: 3,
+                            timeout: 60000,
+                            removeOnComplete: true
+                        };
+                        return [4 /*yield*/, this.normalQueue.add('myJobName1', { foo: 'bar' }, jobOption)];
+                    case 1:
+                        _a.sent();
+                        return [4 /*yield*/, this.normalQueue.add('myJobName2', { qux: 'baz' }, jobOption)];
+                    case 2:
+                        _a.sent();
+                        _a.label = 3;
+                    case 3: return [2 /*return*/];
+                }
+            });
+        }); };
     }
+    Object.defineProperty(BullMQJob, "instance", {
+        get: function () {
+            return this._instance || (this._instance = new this());
+        },
+        enumerable: true,
+        configurable: true
+    });
     BullMQJob.prototype.execute = function () {
         return __awaiter(this, void 0, void 0, function () {
-            function addJobs() {
-                return __awaiter(this, void 0, void 0, function () {
-                    var jobOption;
-                    return __generator(this, function (_a) {
-                        switch (_a.label) {
-                            case 0:
-                                jobOption = {
-                                    attempts: 3,
-                                    backoff: 3,
-                                    timeout: 60000,
-                                    removeOnComplete: true
-                                };
-                                return [4 /*yield*/, myQueue.add('myJobName1', { foo: 'bar' }, jobOption)];
-                            case 1:
-                                _a.sent();
-                                return [4 /*yield*/, myQueue.add('myJobName2', { qux: 'baz' }, jobOption)];
-                            case 2:
-                                _a.sent();
-                                return [2 /*return*/];
-                        }
-                    });
-                });
-            }
-            var repeatQueueId, cronQueue, normalQueueId, myQueue, worker, queueEvents;
+            var repeatQueueId, normalQueueId, worker, queueEvents;
             var _this = this;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         repeatQueueId = this.prefixQueueId + "_cronJob";
                         new bullmq_1.QueueScheduler(repeatQueueId);
-                        cronQueue = new bullmq_1.Queue(repeatQueueId);
+                        this.repeatQueue = new bullmq_1.Queue(repeatQueueId);
                         // Clear all repeat jobs
-                        return [4 /*yield*/, cronQueue.clean(0, 5000, 'active')];
+                        return [4 /*yield*/, this.repeatQueue.clean(0, 5000, 'active')];
                     case 1:
                         // Clear all repeat jobs
                         _a.sent();
-                        return [4 /*yield*/, cronQueue.clean(0, 5000, 'wait')];
+                        return [4 /*yield*/, this.repeatQueue.clean(0, 5000, 'wait')];
                     case 2:
                         _a.sent();
-                        return [4 /*yield*/, cronQueue.clean(0, 5000, 'paused')];
+                        return [4 /*yield*/, this.repeatQueue.clean(0, 5000, 'paused')];
                     case 3:
                         _a.sent();
-                        return [4 /*yield*/, cronQueue.clean(0, 5000, 'delayed')];
+                        return [4 /*yield*/, this.repeatQueue.clean(0, 5000, 'delayed')];
                     case 4:
                         _a.sent();
-                        return [4 /*yield*/, cronQueue.clean(0, 5000, 'failed')];
+                        return [4 /*yield*/, this.repeatQueue.clean(0, 5000, 'failed')];
                     case 5:
                         _a.sent();
-                        return [4 /*yield*/, cronQueue.clean(0, 5000, 'completed')];
+                        return [4 /*yield*/, this.repeatQueue.clean(0, 5000, 'completed')];
                     case 6:
                         _a.sent();
                         new bullmq_1.Worker(repeatQueueId, function (job) { return __awaiter(_this, void 0, void 0, function () {
@@ -136,7 +144,7 @@ var BullMQJob = /** @class */ (function () {
                             Log_1.default.info("CronQueue job:" + job.id + " has completed!");
                         });
                         // Repeat job every minute.
-                        return [4 /*yield*/, cronQueue.add('every_min', { color: 'yellow' }, {
+                        return [4 /*yield*/, this.repeatQueue.add('every_min', { color: 'yellow' }, {
                                 repeat: {
                                     cron: '* * * * *'
                                 }
@@ -144,8 +152,8 @@ var BullMQJob = /** @class */ (function () {
                     case 7:
                         // Repeat job every minute.
                         _a.sent();
-                        normalQueueId = this.prefixQueueId + "_fistQueue";
-                        myQueue = new bullmq_1.Queue(normalQueueId);
+                        normalQueueId = this.prefixQueueId + "_normalQueue";
+                        this.normalQueue = new bullmq_1.Queue(normalQueueId);
                         worker = new bullmq_1.Worker(normalQueueId, function (job) { return __awaiter(_this, void 0, void 0, function () {
                             return __generator(this, function (_a) {
                                 // Will print { foo: 'bar'} for the first job
@@ -168,7 +176,7 @@ var BullMQJob = /** @class */ (function () {
                             Log_1.default.info("Event job:" + event.jobId + " has failed with " + err.message);
                         });
                         // Test
-                        return [4 /*yield*/, addJobs()];
+                        return [4 /*yield*/, this.addJobs()];
                     case 8:
                         // Test
                         _a.sent();
