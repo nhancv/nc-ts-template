@@ -78,12 +78,20 @@ var BullMQJob = /** @class */ (function () {
         return __awaiter(this, void 0, void 0, function () {
             function addJobs() {
                 return __awaiter(this, void 0, void 0, function () {
+                    var jobOption;
                     return __generator(this, function (_a) {
                         switch (_a.label) {
-                            case 0: return [4 /*yield*/, myQueue.add('myJobName1', { foo: 'bar' })];
+                            case 0:
+                                jobOption = {
+                                    attempts: 3,
+                                    backoff: 3,
+                                    timeout: 60000,
+                                    removeOnComplete: true
+                                };
+                                return [4 /*yield*/, myQueue.add('myJobName1', { foo: 'bar' }, jobOption)];
                             case 1:
                                 _a.sent();
-                                return [4 /*yield*/, myQueue.add('myJobName2', { qux: 'baz' })];
+                                return [4 /*yield*/, myQueue.add('myJobName2', { qux: 'baz' }, jobOption)];
                             case 2:
                                 _a.sent();
                                 return [2 /*return*/];
@@ -99,6 +107,26 @@ var BullMQJob = /** @class */ (function () {
                         repeatQueueId = this.prefixQueueId + "_cronJob";
                         new bullmq_1.QueueScheduler(repeatQueueId);
                         cronQueue = new bullmq_1.Queue(repeatQueueId);
+                        // Clear all repeat jobs
+                        return [4 /*yield*/, cronQueue.clean(0, 5000, 'active')];
+                    case 1:
+                        // Clear all repeat jobs
+                        _a.sent();
+                        return [4 /*yield*/, cronQueue.clean(0, 5000, 'wait')];
+                    case 2:
+                        _a.sent();
+                        return [4 /*yield*/, cronQueue.clean(0, 5000, 'paused')];
+                    case 3:
+                        _a.sent();
+                        return [4 /*yield*/, cronQueue.clean(0, 5000, 'delayed')];
+                    case 4:
+                        _a.sent();
+                        return [4 /*yield*/, cronQueue.clean(0, 5000, 'failed')];
+                    case 5:
+                        _a.sent();
+                        return [4 /*yield*/, cronQueue.clean(0, 5000, 'completed')];
+                    case 6:
+                        _a.sent();
                         new bullmq_1.Worker(repeatQueueId, function (job) { return __awaiter(_this, void 0, void 0, function () {
                             return __generator(this, function (_a) {
                                 Log_1.default.info("CronQueue: " + job.name + ": " + JSON.stringify(job.data));
@@ -113,7 +141,7 @@ var BullMQJob = /** @class */ (function () {
                                     cron: '* * * * *'
                                 }
                             })];
-                    case 1:
+                    case 7:
                         // Repeat job every minute.
                         _a.sent();
                         normalQueueId = this.prefixQueueId + "_fistQueue";
@@ -141,7 +169,7 @@ var BullMQJob = /** @class */ (function () {
                         });
                         // Test
                         return [4 /*yield*/, addJobs()];
-                    case 2:
+                    case 8:
                         // Test
                         _a.sent();
                         return [2 /*return*/];

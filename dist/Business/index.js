@@ -77,11 +77,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var RilModule_1 = __importDefault(require("../Base/RilModule"));
-var TemplateBot_1 = __importDefault(require("./Provider/TelegramBot/TemplateBot"));
-var MongoMigrate_1 = require("./Provider/MongoDB/MongoMigrate");
-var MongoProvider_1 = require("./Provider/MongoDB/MongoProvider");
-var EmailNotifier_1 = __importDefault(require("./Provider/EmailNotifier"));
-var CronJob_1 = __importDefault(require("./Provider/CronJob"));
 var BullMQJob_1 = __importDefault(require("./Provider/BullMQJob"));
 var Business = /** @class */ (function (_super) {
     __extends(Business, _super);
@@ -90,43 +85,39 @@ var Business = /** @class */ (function (_super) {
     }
     Business.prototype.start = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var bot, emailNotifier, cronJob;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0: 
                     // @nhancv 9/16/19: Connect db
-                    return [4 /*yield*/, MongoProvider_1.MongoProvider.instance.connect()];
+                    // await MongoProvider.instance.connect();
+                    // // @nhancv 9/16/19: Check migrate
+                    // await new MongoMigrate().migrate();
+                    // // @nhancv 11/22/19: Start bot
+                    // const bot = new TemplateBot();
+                    // await bot.create();
+                    // await bot.start();
+                    // // @nhancv 11/23/19: Start email listener
+                    // const emailNotifier = new EmailNotifier();
+                    // emailNotifier.setBot(bot);
+                    // await emailNotifier.start();
+                    // @nhancv 11/27/19: Run cron job
+                    // @nhancv 12/20/19: For premium job queue
+                    return [4 /*yield*/, new BullMQJob_1.default().execute()];
                     case 1:
                         // @nhancv 9/16/19: Connect db
-                        _a.sent();
-                        // @nhancv 9/16/19: Check migrate
-                        return [4 /*yield*/, new MongoMigrate_1.MongoMigrate().migrate()];
-                    case 2:
-                        // @nhancv 9/16/19: Check migrate
-                        _a.sent();
-                        bot = new TemplateBot_1.default();
-                        return [4 /*yield*/, bot.create()];
-                    case 3:
-                        _a.sent();
-                        return [4 /*yield*/, bot.start()];
-                    case 4:
-                        _a.sent();
-                        emailNotifier = new EmailNotifier_1.default();
-                        emailNotifier.setBot(bot);
-                        return [4 /*yield*/, emailNotifier.start()];
-                    case 5:
-                        _a.sent();
+                        // await MongoProvider.instance.connect();
+                        // // @nhancv 9/16/19: Check migrate
+                        // await new MongoMigrate().migrate();
+                        // // @nhancv 11/22/19: Start bot
+                        // const bot = new TemplateBot();
+                        // await bot.create();
+                        // await bot.start();
+                        // // @nhancv 11/23/19: Start email listener
+                        // const emailNotifier = new EmailNotifier();
+                        // emailNotifier.setBot(bot);
+                        // await emailNotifier.start();
                         // @nhancv 11/27/19: Run cron job
                         // @nhancv 12/20/19: For premium job queue
-                        return [4 /*yield*/, new BullMQJob_1.default().execute()];
-                    case 6:
-                        // @nhancv 11/27/19: Run cron job
-                        // @nhancv 12/20/19: For premium job queue
-                        _a.sent();
-                        cronJob = new CronJob_1.default();
-                        cronJob.setBot(bot);
-                        return [4 /*yield*/, cronJob.execute()];
-                    case 7:
                         _a.sent();
                         return [2 /*return*/];
                 }

@@ -41,6 +41,13 @@ export default class BullMQJob {
     const repeatQueueId = `${this.prefixQueueId}_cronJob`;
     new QueueScheduler(repeatQueueId);
     const cronQueue = new Queue(repeatQueueId);
+    // Clear all repeat jobs
+    await cronQueue.clean(0, 5000, 'active');
+    await cronQueue.clean(0, 5000, 'wait');
+    await cronQueue.clean(0, 5000, 'paused');
+    await cronQueue.clean(0, 5000, 'delayed');
+    await cronQueue.clean(0, 5000, 'failed');
+    await cronQueue.clean(0, 5000, 'completed');
     new Worker(repeatQueueId, async (job: Job) => {
       Log.info(`CronQueue: ${job.name}: ${JSON.stringify(job.data)}`);
     }).on('completed', (job: Job) => {
@@ -60,8 +67,14 @@ export default class BullMQJob {
     const myQueue = new Queue(normalQueueId);
 
     async function addJobs() {
-      await myQueue.add('myJobName1', {foo: 'bar'});
-      await myQueue.add('myJobName2', {qux: 'baz'});
+      const jobOption = {
+        attempts: 3,
+        backoff: 3,
+        timeout: 60000,
+        removeOnComplete: true
+      };
+      await myQueue.add('myJobName1', {foo: 'bar'}, jobOption);
+      await myQueue.add('myJobName2', {qux: 'baz'}, jobOption);
     }
 
     // Tracking specific queue internally
