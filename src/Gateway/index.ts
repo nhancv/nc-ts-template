@@ -119,7 +119,7 @@ export default class Gateway extends RilModule {
     /**
      * Start listen only on localhost domain
      */
-    const hostname = process.env.NODE_ENV == 'dev' ? 'localhost' : 'localhost';
+    const hostname = process.env.NODE_ENV == 'dev' ? 'localhost' : '0.0.0.0';
     try {
       http.listen(port, hostname, () => {
         Log.info(`Server ${process.env.NODE_ENV} listening at port ${port}`);
