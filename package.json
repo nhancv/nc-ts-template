@@ -65,5 +65,9 @@
     "tslib": "^1.10.0",
     "typescript": "^3.5"
   },
+  "engines": {
+    "node": "15.x",
+    "npm": "7.x"
+  },
   "heroku-run-build-script": true
 }
